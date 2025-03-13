@@ -1,0 +1,18 @@
+
+datasource db {
+  provider = "postgresql" 
+  url      = "postgresql://postgres:postgres@localhost:5432/postgres"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Student {
+  id        Int    @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String @unique
+  dob       DateTime
+  createdAt DateTime @default(now())
+}

@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  be:
+    build: ./backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "postgresql://postgres:yourpassword@db:5432/mydb"
+    command: sh -c "npx prisma migrate deploy && node index.js"
+
+  fe:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - be
+
+volumes:
+  postgres-data:
