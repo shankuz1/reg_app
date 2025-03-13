@@ -1,31 +1,40 @@
+version: '3.8'
+
 services:
   db:
-    image: postgres
+    image: postgres:latest
+    container_name: postgres-container
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mydb
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
+      POSTGRES_DB: postgres
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
-  be:
-    build: ./backend
+  backend:
+    image: dummy-be
+    container_name: backend
     restart: always
-    depends_on:
-      - db
     environment:
-      DATABASE_URL: "postgresql://postgres:yourpassword@db:5432/mydb"
-    command: sh -c "npx prisma migrate deploy && node index.js"
-
-  fe:
-    build: ./frontend
+      # Use the Postgres container's name as the host in the connection string
+      DATABASE_URL: "postgresql://postgres:postgres@postgres-container:5432/postgres"
     ports:
       - "3000:3000"
     depends_on:
-      - be
+      - db
+    command: sh -c "npx prisma migrate deploy && node index.js"
+
+  frontend:
+    image: fe-dummy
+    container_name: frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
 
 volumes:
   postgres-data:

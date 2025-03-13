@@ -10,6 +10,16 @@ const prismaClient = new prisma();
 app.use(cors());
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log(`Incoming Request: ${req.method} ${req.url}`);
+  
+  // Listen for the response 'finish' event to log the status code when response is sent
+  res.on('finish', () => {
+    console.log(`Response Sent: ${req.method} ${req.url} - Status: ${res.statusCode}`);
+  });
+  
+  next();
+});
 
 // Optionally handle preflight requests for all routes
 // app.options('*', cors());
