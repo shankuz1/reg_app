@@ -1,39 +1,43 @@
-// index.js
 
+//Import the tracing initialization so that OpenTelemetry is configured before any other code runs.
+require('./tracing');
+
+// Import required modules.
 const express = require('express');
-const prisma = require('@prisma/client').PrismaClient;
-const app = express();
 const cors = require('cors');
-const prismaClient = new prisma();
+const { PrismaClient } = require('@prisma/client');
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+//Import the OpenTelemetry API to perform manual instrumentation.
+const { trace } = require('@opentelemetry/api');
 
+//Create an Express application and a Prisma client.
+const app = express();
+const prismaClient = new PrismaClient();
+
+//Obtain a tracer instance for manual instrumentation, naming this tracer "backend-service".
+const tracer = trace.getTracer('backend-service');
+
+//Logging middleware to log incoming requests and outgoing responses.
 app.use((req, res, next) => {
   console.log(`Incoming Request: ${req.method} ${req.url}`);
-  
-  // Listen for the response 'finish' event to log the status code when response is sent
   res.on('finish', () => {
     console.log(`Response Sent: ${req.method} ${req.url} - Status: ${res.statusCode}`);
   });
-  
   next();
 });
 
-// Optionally handle preflight requests for all routes
-// app.options('*', cors());
+//Middleware to parse JSON and enable CORS.
+app.use(express.json());
+app.use(cors());
 
-// health endpoint to see if the backend is up
-app.get('/health', async(req,res) => {
-  res.status(200).send("everthing looks up")
-})
 
-// POST route to register a student
+//POST /register endpoint - Registers a new student.
 app.post('/register', async (req, res) => {
-  const { firstName, lastName, email, dob } = req.body;
-
+  const span = tracer.startSpan('POST /register');
   try {
+    span.addEvent('Received request to register a student');
+    const { firstName, lastName, email, dob } = req.body;
+
     const student = await prismaClient.student.create({
       data: {
         firstName,
@@ -42,55 +46,67 @@ app.post('/register', async (req, res) => {
         dob: new Date(dob),
       },
     });
+
+    span.addEvent('Student registered successfully');
     res.json(student);
   } catch (error) {
+
+    span.recordException(error);
     res.status(400).json({ error: "Error creating student" });
+  } finally {
+    span.end();
   }
 });
 
-// DEL route to delete a certain user from db
-// In api call provide firstname and emailID to delete users from DB
 
-app.delete('/deleteUser', async (req, res) => {
-  const { email, firstName } = req.body;
-
-  if (!email || !firstName) {
-    return res.status(400).json({ error: "Email and firstName are required" });
-  }
-
+//GET /students endpoint - Retrieves all student records.
+app.get('/students', async (req, res) => {
+  const span = tracer.startSpan('GET /students');
   try {
+    span.addEvent('Fetching all students');
+    const students = await prismaClient.student.findMany();
+    span.addEvent('Fetched students successfully');
+    res.json(students);
+  } catch (error) {
+    span.recordException(error);
+    res.status(500).json({ error: "Error fetching students" });
+  } finally {
+    span.end();
+  }
+});
+
+
+//DELETE /deleteUser endpoint - Deletes a student by email and firstName.
+app.delete('/deleteUser', async (req, res) => {
+  // [19] Start a new span for the DELETE /deleteUser endpoint.
+  const span = tracer.startSpan('DELETE /deleteUser');
+  try {
+    span.addEvent('Received request to delete user');
+    const { email, firstName } = req.body;
+    if (!email || !firstName) {
+      span.addEvent('Missing email or firstName in request');
+      return res.status(400).json({ error: "Email and firstName are required" });
+    }
+
     const result = await prismaClient.student.deleteMany({
-      where: {
-        email: email,
-        firstName: firstName,
-      },
+      where: { email, firstName },
     });
 
     if (result.count === 0) {
+      span.addEvent('No user found matching the criteria');
       return res.status(404).json({ error: "No user found with the provided email and firstName" });
     }
 
+    span.addEvent('User(s) deleted successfully');
     res.json({ message: `${result.count} user(s) deleted successfully` });
   } catch (error) {
-    console.error("Error deleting user:", error);
+    span.recordException(error);
     res.status(500).json({ error: "An error occurred while deleting the user" });
+  } finally {
+    span.end();
   }
 });
 
-// GET route to retrieve all students
-app.get('/students', async (req, res) => {
-  try {
-    const students = await prismaClient.student.findMany();
-    res.json(students);
-  } catch (error) {
-    res.status(500).json({ error: "Error fetching students" });
-  }
-});
-
-
-
-// Start server
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
 });

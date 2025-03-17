@@ -1,94 +1,34 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+// src/App.jsx
 
+// [1] Import React and routing components from react-router-dom.
+import React from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+
+// [2] Import the three pages: Registration, DeleteUser, and GetUsers.
+import RegistrationPage from './RegistrationPage';
+import DeleteUserPage from './DeleteUserPage';
+import GetUsersPage from './GetUsersPage';
+
+// [3] Define the App component that sets up a navigation bar and routes.
 function App() {
-  const [student, setStudent] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    dob: '',
-  });
-  const [message, setMessage] = useState('');
-
-  const handleChange = (e) => {
-    setStudent({ ...student, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post('http://localhost:3000/register', student);
-      setMessage(`Student ${response.data.firstName} ${response.data.lastName} registered successfully!`);
-      setStudent({
-        firstName: '',
-        lastName: '',
-        email: '',
-        dob: '',
-      });
-    } catch (error) {
-      setMessage('Error registering student');
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold mb-6 text-center">Student Registration</h1>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700">First Name</label>
-            <input
-              type="text"
-              name="firstName"
-              value={student.firstName}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Last Name</label>
-            <input
-              type="text"
-              name="lastName"
-              value={student.lastName}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={student.email}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Date of Birth</label>
-            <input
-              type="date"
-              name="dob"
-              value={student.dob}
-              onChange={handleChange}
-              required
-              className="mt-1 block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full py-2 px-4 bg-black text-white rounded-md hover:bg-blue-600 transition duration-200"
-          >
-            Register Student
-          </button>
-        </form>
-        {message && <p className="mt-4 text-center text-green-600">{message}</p>}
-      </div>
-    </div>
+    // [3a] BrowserRouter provides the routing context.
+    <BrowserRouter>
+      {/* [3b] Navigation bar to link to each page */}
+      <nav className="bg-gray-800 p-4">
+        <ul className="flex space-x-4">
+          <li><Link to="/" className="text-white">Register</Link></li>
+          <li><Link to="/delete" className="text-white">Delete User</Link></li>
+          <li><Link to="/users" className="text-white">Get Users</Link></li>
+        </ul>
+      </nav>
+      {/* [3c] Define the routes for the different pages */}
+      <Routes>
+        <Route path="/" element={<RegistrationPage />} />
+        <Route path="/delete" element={<DeleteUserPage />} />
+        <Route path="/users" element={<GetUsersPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
