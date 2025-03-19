@@ -35,6 +35,29 @@ services:
       - "5173:5173"
     depends_on:
       - backend
+  # otel-collector:
+  #   image: otel/opentelemetry-collector:latest
+  #   container_name: otel-collector
+  #   ports:
+  #     - "4318:4318"  # OTLP HTTP
+  #     - "4317:4317"  # OTLP gRPC
+  #   volumes:
+  #     - ./otel-collector-config.yaml:/otel-collector-config.yaml
+  #   command: ["--config=/otel-collector-config.yaml"]
+  #   depends_on:
+  #     - tempo
+
+    
+
+  # tempo:
+  #   image: grafana/tempo:latest
+  #   container_name: tempo
+  #   ports:
+  #     - "3200:3200"
+  #   command: ["-config.file=/etc/tempo.yaml"]
+  #   volumes:
+  #     - "./tempo.yaml:/etc/tempo.yaml"
+    
 
 volumes:
   postgres-data:

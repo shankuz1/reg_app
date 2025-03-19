@@ -1,6 +1,7 @@
 
 //Import the tracing initialization so that OpenTelemetry is configured before any other code runs.
 require('./tracing');
+require('./metrics');
 
 //test
 

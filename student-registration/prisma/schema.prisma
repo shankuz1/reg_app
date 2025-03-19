@@ -2,7 +2,7 @@
 datasource db {
   provider = "postgresql" 
    url      =  "postgresql://postgres:postgres@postgres-container:5432/postgres"
-  //url = "postgresql://postgres:postgres@localhost:5432/postgres"
+  // url = "postgresql://postgres:postgres@localhost:5432/postgres"
 }
 
 generator client {
