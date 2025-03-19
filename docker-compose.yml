@@ -23,6 +23,7 @@ services:
       DATABASE_URL: "postgresql://postgres:postgres@postgres-container:5432/postgres"
     ports:
       - "3000:3000"
+      - "4318:4318"
     depends_on:
       - db
     command: sh -c "npx prisma migrate deploy && node index.js"
