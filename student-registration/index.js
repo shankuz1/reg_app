@@ -2,15 +2,25 @@
 //Import the tracing initialization so that OpenTelemetry is configured before any other code runs.
 require('./tracing');
 
+//test
+
+const { trace } = require('@opentelemetry/api');
+// const tracer = trace.getTracer('test');
+// const testSpan = tracer.startSpan('test-span');
+// testSpan.addEvent('This is a test event');
+// testSpan.end();
+
+//test-end
+
 // Import required modules.
 const express = require('express');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 
 //Import the OpenTelemetry API to perform manual instrumentation.
-const { trace } = require('@opentelemetry/api');
+// const { trace } = require('@opentelemetry/api');
 
-//Create an Express application and a Prisma client.
+
 const app = express();
 const prismaClient = new PrismaClient();
 
@@ -18,13 +28,13 @@ const prismaClient = new PrismaClient();
 const tracer = trace.getTracer('backend-service');
 
 //Logging middleware to log incoming requests and outgoing responses.
-app.use((req, res, next) => {
-  console.log(`Incoming Request: ${req.method} ${req.url}`);
-  res.on('finish', () => {
-    console.log(`Response Sent: ${req.method} ${req.url} - Status: ${res.statusCode}`);
-  });
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(`Incoming Request: ${req.method} ${req.url}`);
+//   res.on('finish', () => {
+//     console.log(`Response Sent: ${req.method} ${req.url} - Status: ${res.statusCode}`);
+//   });
+//   next();
+// });
 
 //Middleware to parse JSON and enable CORS.
 app.use(express.json());
