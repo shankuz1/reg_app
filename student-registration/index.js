@@ -37,6 +37,7 @@ const tracer = trace.getTracer('backend-service');
 // });
 
 //Middleware to parse JSON and enable CORS.
+
 app.use(express.json());
 app.use(cors());
 
