@@ -9,7 +9,7 @@ function GetUsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/students');
+      const response = await axios.get('http://localhost:3002/students');
       setUsers(response.data);
     } catch (error) {
       setMessage('Error fetching users');

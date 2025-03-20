@@ -15,7 +15,7 @@ function DeleteUserPage() {
     e.preventDefault();
     try {
       // For DELETE requests with a request body, pass the data in the config's data property.
-      const response = await axios.delete('http://localhost:3000/deleteUser', { data: credentials });
+      const response = await axios.delete('http://localhost:3002/deleteUser', { data: credentials });
       setMessage(response.data.message);
     } catch (error) {
       setMessage(error.response?.data?.error || 'Error deleting user');

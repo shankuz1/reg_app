@@ -3,6 +3,7 @@ FROM node:18-alpine
 # Set the working directory inside the container
 WORKDIR /usr/src/app
 
+RUN apk add --no-cache curl
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
@@ -17,7 +18,7 @@ COPY . .
 RUN npx prisma generate
 
 # Expose the port that your app runs on
-EXPOSE 3000
+EXPOSE 3002
 EXPOSE 4318
 # Start the application
 CMD ["node", "index.js"]
